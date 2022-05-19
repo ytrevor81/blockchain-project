@@ -6,7 +6,7 @@ import "./ITrevToken.sol";
 
 contract TrevDAO {
 
-  address public trevTokenAddress;
+  address public immutable trevTokenAddress;
   address public governor;
   uint256 public votingPeriod;
 

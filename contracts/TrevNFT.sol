@@ -30,9 +30,11 @@ contract TrevNFT is ERC721URIStorage {
 
     function mintNFT(uint256 randomNumber) external returns (bool) {
         require(_tokenCounter < maximumNumOfNFTs, "Cannot mint any more NFTs");
+
         _tokenCounter++;
         assignNFTType(randomNumber);
         _safeMint(msg.sender, _tokenCounter);
+        
         return true;
     }
 
@@ -45,8 +47,10 @@ contract TrevNFT is ERC721URIStorage {
   function setTokenURI(uint256 tokenId, string memory _tokenURI) external returns (bool) {
       require(_isApprovedOrOwner(msg.sender, tokenId), "NFT caller is not owner");
       require(tokenURISet[tokenId] == false, "NFT URI already set");
+
       _setTokenURI(tokenId, _tokenURI);
       tokenURISet[tokenId] = true;
+
       emit TokenURIAssigned(tokenId, _tokenURI);
       return true;
   }
