@@ -9,7 +9,9 @@ contract TrevTokenAirDrop {
     address public  immutable trevTokenAddress;
     address public immutable trevNFTAddress;
 
-    uint256 private immutable amountPerAirdrop;
+    uint256 private immutable amountPerRetroAirdrop;
+    uint256 private immutable amountPerPhiloAirdrop;
+    uint256 private immutable amountPerFancyAirdrop; //change to amount per nft type
 
     mapping(address => bool) public addressAlreadyReceivedAirdrop;
 
@@ -18,7 +20,9 @@ contract TrevTokenAirDrop {
     constructor(address _trevTokenAddress, address _trevNFTAddress) {
         trevTokenAddress = _trevTokenAddress;
         trevNFTAddress = _trevNFTAddress;
-        amountPerAirdrop = 1500 * 10 ** 18;
+        amountPerRetroAirdrop = 1000 * 10 ** 18;
+        amountPerPhiloAirdrop = 1500 * 10 ** 18;
+        amountPerFancyAirdrop = 2000 * 10 ** 18;
     }
 
     function seeBalenceOfContract() public view returns (uint256) {
@@ -32,13 +36,13 @@ contract TrevTokenAirDrop {
         address _sender = msg.sender;
 
         require(addressAlreadyReceivedAirdrop[_sender] == false, "User already had an airdrop of TTK");
-        require(currentBalence >= amountPerAirdrop, "Contract has less than the airdrop amount");
+        require(currentBalence >= amountPerRetroAirdrop, "Contract has less than the airdrop amount");
         require(hasNFT == true, "User doesn't have a TNFT");
 
-        IERC20(trevTokenAddress).transfer(_sender, amountPerAirdrop);
+        IERC20(trevTokenAddress).transfer(_sender, amountPerRetroAirdrop);
         addressAlreadyReceivedAirdrop[_sender] = true;
 
-        emit AirDropped(amountPerAirdrop, _sender);
+        emit AirDropped(amountPerRetroAirdrop, _sender);
 
         return true;
     }
@@ -51,6 +55,8 @@ contract TrevTokenAirDrop {
 
         return false;
     }
+
+    //function typeOfNFT() internal returns
 
 
 }
