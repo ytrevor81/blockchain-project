@@ -2,30 +2,30 @@ const TrevToken = artifacts.require("TrevToken")
 
 contract("TrevToken", (accounts) => {
   it ("deployed", async () => {
-    const contractInstance = await TrevToken.deployed();
-    const name = await contractInstance.name();
+    let contractInstance = await TrevToken.deployed();
+    let name = await contractInstance.name();
     assert.equal(name, "Trev Token", "not the same name")
   });
 
   it ("successful transfer", async () => {
-    const contractInstance = await TrevToken.deployed();
-    const mainAccount = accounts[0];
-    const receivingAccount = accounts[1];
-    const balanceOfMainAccount = await contractInstance.getBalance(mainAccount).toNumber();
-    const totalSupply = await contractInstance.totalSupply().toNumber();
-    assert.equal(balanceOfMainAccount, totalSupply, "not the same balance");
+    let contractInstance = await TrevToken.deployed();
+    let mainAccount = accounts[0];
+    let receivingAccount = accounts[1];
+    let balanceOfMainAccount = await contractInstance.balanceOf(mainAccount);
+    let totalSupply = await contractInstance.totalSupply();
+    assert.equal(BigInt(balanceOfMainAccount), BigInt(totalSupply), "not the same balance");
 
-    const amount = 1000;
-    await contractInstance.transfer.call(receivingAccount, amount, { from: mainAccount });
-    const balanceOfReceiver = await contractInstance.getBalance(receivingAccount).toNumber();
-    assert.equal(balanceOfReceiver, amount, "transfer complete");
+    let amount = 1000;
+    let complete = await contractInstance.transfer.call(receivingAccount, amount, { from: mainAccount });
+    let balanceOfReceiver = await contractInstance.balanceOf(receivingAccount);
+    assert.equal(balanceOfReceiver.toNumber(), amount, "transfer complete");
   });
 
   it ("successful add to blacklist", async () => {
-    const contractInstance = await TrevToken.deployed();
-    const blackListedAccount = accounts[1];
+    let contractInstance = await TrevToken.deployed();
+    let blackListedAccount = accounts[1];
     await contractInstance.addToBlackList(blackListedAccount);
-    const isBlackListed = await contractInstance.getBlackListedStatus(blackListedAccount);
+    let isBlackListed = await contractInstance.getBlackListedStatus(blackListedAccount);
     assert.equal(isBlackListed, true, "address not blacklisted");
   });
 });
