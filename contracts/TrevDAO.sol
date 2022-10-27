@@ -6,7 +6,7 @@ import "./ITrevToken.sol";
 
 contract TrevDAO {
 
-  address public immutable trevTokenAddress;
+  address public trevTokenAddress;
   address public governor;
   uint256 public votingPeriod;
 
@@ -37,12 +37,6 @@ contract TrevDAO {
 
   //proposal ID => numVotesAgainst
   mapping (uint256 => uint256) public votesAgainstProposal;
-
-  //staker address mapped to a mapping of the amount invested mapped to the block time the investment was made
-  mapping (address => mapping(uint256 => uint256)) public stakingTime;
-
-  //staker address mapped to a uint256
-  mapping (address => uint256) public stakingAmount;
 
   constructor (address _trevTokenAddress) {
     trevTokenAddress = _trevTokenAddress;
@@ -211,58 +205,16 @@ contract TrevDAO {
         if (votesFor <= votesAgainst) {
           stateOfProposal[_proposalID] = ProposalState.Defeated;
           emit ProposalDefeated(_proposalID, ProposalState.Defeated, "More votes against than for proposal.");
-          return;
         }
         else if (votesFor > votesAgainst) {
           stateOfProposal[_proposalID] = ProposalState.Suceeded;
           emit ProposalSucceeded(_proposalID, ProposalState.Suceeded);
-          return;
         }
     }
     else {
         stateOfProposal[_proposalID] = ProposalState.Defeated;
          emit ProposalDefeated(_proposalID, ProposalState.Defeated, "Proposal did not meet quorum.");
-         return;
     }
-  }
-
-  /**
-    * Staking functions
-  **/
-
-  function unstake() external returns (bool) {
-    address sender = msg.sender;
-    uint256 depositAmount = stakingAmount[sender];
-    require(depositAmount > 0, "Not staking");
-
-    uint256 depositTime = block.timestamp - stakingTime[sender][depositAmount];
-    uint256 interest = depositAmount + depositTime;
-
-    uint256 totalAmount = depositAmount + interest;
-    IERC20 token = IERC20(trevTokenAddress);
-
-    ITrevToken(trevTokenAddress).mint(interest);
-    token.transfer(msg.sender, totalAmount);
-
-    stakingAmount[sender] = 0;
-    emit Withdraw(sender, totalAmount);
-
-    return true;
-    }
-
-  function stake(uint256 amount) external returns (bool) {
-    address staker = msg.sender;
-    require(stakingAmount[staker] == 0, "Just for the purpose of this demo, you can't add to your current stake");
-    uint256 realAmount = amount * (10 ** 18);
-    IERC20 token = IERC20(trevTokenAddress);
-    uint256 currentTime = block.timestamp;
-
-    token.transferFrom(staker, address(this), realAmount);
-    stakingAmount[staker] = realAmount;
-    stakingTime[staker][realAmount] = currentTime;
-
-    emit Staking(staker, realAmount, currentTime);
-    return true;
   }
 
   /**
@@ -277,12 +229,12 @@ contract TrevDAO {
   }
 
   function changeVotingPeriod (uint256 _votingPeriod) external onlyGovernor {
-    votingPeriod = _votingPeriod; //time lock smart contract
+    votingPeriod = _votingPeriod;
     emit VotingPeriodChanged(_votingPeriod);
   }
 
   function changeQuorum (uint256 _quorum) external onlyGovernor {
-    quorum = _quorum; //time lock smart contract
+    quorum = _quorum;
     emit QuorumChanged(_quorum);
   }
 }
