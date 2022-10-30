@@ -41,14 +41,16 @@ contract TrevToken is ERC20, Ownable, ITrevToken {
     return isBlackListed[_user];
   }
 
-  function addToBlackList(address _user) external onlyOwner {
+  function addToBlackList(address _user) external onlyOwner returns(bool) {
     isBlackListed[_user] = true;
     emit AddedBlackList(_user);
+    return true;
   }
 
-  function removeFromBlackList (address _user) external onlyOwner {
+  function removeFromBlackList (address _user) external onlyOwner returns(bool) {
     isBlackListed[_user] = false;
     emit RemovedBlackList(_user);
+    return true;
   }
 
   function addDAOAddress (address _dao) external onlyOwner {
