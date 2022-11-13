@@ -23,7 +23,6 @@ contract("TrevToken", (accounts) => {
   });
 
   it ("successfully added to and removed from blacklist", async () => {
-    //const contractInstance = await TrevToken.deployed();
     const newAmount = 10000
     totalAmountReceived += newAmount;
     const addedToBlackListData = await contractInstance.addToBlackList(receivingAccount);
