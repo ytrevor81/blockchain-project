@@ -8,5 +8,5 @@ contract("TrevDAO", (accounts) => {
     const daoInstance = await TrevDAO.deployed(tokenAddress);
     const tokenAddressInDAO = await daoInstance.trevTokenAddress();
     assert.equal(tokenAddressInDAO, tokenAddress, "same address")
-  });
+  });  
 });

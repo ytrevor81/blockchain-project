@@ -2,12 +2,13 @@ const TrevToken = artifacts.require("TrevToken")
 
 contract("TrevToken", (accounts) => {
 
+  let contractInstance;
   const mainAccount = accounts[0];
   const receivingAccount = accounts[1];
   let totalAmountReceived;
 
   it ("successful transfer", async () => {
-    const contractInstance = await TrevToken.deployed();
+    contractInstance = await TrevToken.deployed();
     const balanceOfMainAccount = await contractInstance.balanceOf(mainAccount);
     const totalSupply = await contractInstance.totalSupply();
     assert.equal(BigInt(balanceOfMainAccount), BigInt(totalSupply), "same balance");
@@ -22,7 +23,7 @@ contract("TrevToken", (accounts) => {
   });
 
   it ("successfully added to and removed from blacklist", async () => {
-    const contractInstance = await TrevToken.deployed();
+    //const contractInstance = await TrevToken.deployed();
     const newAmount = 10000
     totalAmountReceived += newAmount;
     const addedToBlackListData = await contractInstance.addToBlackList(receivingAccount);
@@ -36,7 +37,7 @@ contract("TrevToken", (accounts) => {
     try {
       failedTransfer = await contractInstance.transfer.call(receivingAccount, newAmount, { from: mainAccount });
     }
-    catch(err) {
+    catch {
       failedTransfer = false;
     }
     finally {
