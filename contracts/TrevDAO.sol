@@ -65,17 +65,6 @@ contract TrevDAO {
     ProposalState state
     );
 
-  event Staking (
-    address staker,
-    uint256 amount,
-    uint256 timeStamp
-    );
-
-  event Withdraw (
-    address staker,
-    uint256 amount
-    );
-
   event VoteSubmitted (
     address indexed voter,
     uint256 proposalID,
