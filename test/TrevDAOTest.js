@@ -16,6 +16,7 @@ contract("TrevDAO", (accounts) => {
     assert.equal(tokenAddressInDAO, tokenAddress, "dao contract ready")
   });
 
+
   // it ("deployed", async () => {
   //   tokenInstance = await TrevToken.deployed();
   //   const tokenAddress = tokenInstance.address;
@@ -23,5 +24,5 @@ contract("TrevDAO", (accounts) => {
   //
   //   const tokenAddressInDAO = await daoInstance.trevTokenAddress();
   //   assert.equal(tokenAddressInDAO, tokenAddress, "dao contract ready")
-  // });  
+  // });
 });

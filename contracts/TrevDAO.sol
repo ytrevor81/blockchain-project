@@ -43,7 +43,7 @@ contract TrevDAO {
     governor = msg.sender;
     proposalIDCounter = 0;
     quorum = 2;
-    votingPeriod = 2 minutes;
+    votingPeriod = 10 minutes;
     valueOfEachVote = 1 * 10 ** 18; //1 token is 1 vote
   }
 
@@ -150,6 +150,7 @@ contract TrevDAO {
     require(voterAlreadyVoted[_sender][_proposalID] == false, "User has already voted on this proposal");
     require(token.balanceOf(_sender) > 0, "Only TrevToken holders can participate");
 
+    token.approve(_sender, valueOfEachVote);
     token.transferFrom(_sender, address(this), valueOfEachVote);
     voteAssignedToProposal(_sender, _proposalID, _support);
     emit VoteSubmitted(_sender, _proposalID, _support);
@@ -211,6 +212,11 @@ contract TrevDAO {
     * the governor of this DAO protocal can assign the executor role via setExecutor() and transfer
     * the governor role to another address via assignNewGoverner().
   **/
+
+  function setValueOfVoteOnTokenContract() external onlyGovernor returns(bool) {
+    ITrevToken(trevTokenAddress).setValueOfVote(valueOfEachVote);
+    return true;
+  }
 
   function assignNewGovernor (address _governor) external onlyGovernor {
     governor = _governor;

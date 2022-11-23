@@ -7,4 +7,5 @@ interface ITrevToken  {
 
   function mint(uint256 amount) external;
 
+  function setValueOfVote(uint256) external returns(bool);
 }

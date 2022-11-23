@@ -7,7 +7,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TrevToken is ERC20, Ownable, ITrevToken {
 
-  address public daoAddress;
+  address private daoAddress;
+  uint256 private valueOfDAOVote;
 
   constructor() ERC20("Trev Token", "TTK") {
     _mint(_msgSender(), 100000000 * 10 ** uint256(decimals()));
@@ -17,11 +18,18 @@ contract TrevToken is ERC20, Ownable, ITrevToken {
 
   event AddedBlackList (address indexed _user);
   event RemovedBlackList (address indexed _user);
+  event DAOAddressAssigned (address _user, address _daoAddress);
+  event ValueOfDAOVoteSet (address _user, uint256 _valueOfDAOVote);
 
   function transfer(address recipient, uint256 amount) public override returns (bool) {
     require(isBlackListed[_msgSender()] == false, "Sender is on BlackList");
     require(isBlackListed[recipient] == false, "Recipient is on BlackList");
     _transfer(_msgSender(), recipient, amount);
+    return true;
+  }
+
+  function approveForDAOVote() external returns(bool) {
+    approve(daoAddress, valueOfDAOVote);
     return true;
   }
 
@@ -53,7 +61,24 @@ contract TrevToken is ERC20, Ownable, ITrevToken {
     return true;
   }
 
-  function addDAOAddress (address _dao) external onlyOwner {
+  function viewDAOAddress() public view returns(address) {
+    return daoAddress;
+  }
+
+  function viewValueAmountFromDAO() public view returns(uint256) {
+    return valueOfDAOVote;
+  }
+
+  function addDAOAddress(address _dao) external onlyOwner returns(bool) {
     daoAddress = _dao;
+    emit DAOAddressAssigned(_msgSender(), _dao);
+    return true;
+  }
+
+  function setValueOfVote(uint256 _value) external override returns(bool) {
+    require(_msgSender() == daoAddress, "Setting has to be dao address");
+    valueOfDAOVote = _value;
+    emit ValueOfDAOVoteSet(_msgSender(), _value);
+    return true;
   }
 }
