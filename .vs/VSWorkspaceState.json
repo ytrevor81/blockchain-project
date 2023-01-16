@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
     "",
+    "\\contracts",
+    "\\src",
     "\\test"
   ],
+  "SelectedNode": "\\test\\TrevTokenTest.js",
   "PreviewInSolutionExplorer": false
 }

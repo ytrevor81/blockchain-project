@@ -26,9 +26,6 @@ contract TrevDAO {
 
   Proposal[] proposals; //stored list of all proposals
 
-  //voter address mapped to a mapping of proposal ID mapped to boolean
-  mapping (address => mapping(uint256 => bool)) private voterAlreadyVoted;
-
   //proposal ID => state
   mapping (uint256 => ProposalState) public stateOfProposal;
 
@@ -78,7 +75,7 @@ contract TrevDAO {
   /**
     * Modifiers
   **/
-
+  
   //only allows the governor address
   modifier onlyGovernor() {
     require(msg.sender == governor, "Only the governor can call this function");
@@ -103,16 +100,11 @@ contract TrevDAO {
   function viewProposal(uint256 _proposalID) external view returns (Proposal memory) {
     Proposal memory proposal = proposals[_proposalID];
     return proposal;
-  }
+  }  
 
   function seeBalenceOfContract() external view returns (uint256) {
     uint256 currentBalence = IERC20(trevTokenAddress).balanceOf(address(this));
     return currentBalence;
-  }
-
-  function alreadyVoted(uint256 proposalID) external view returns (bool) {
-    address sender = msg.sender;
-    return voterAlreadyVoted[sender][proposalID];
   }
 
   function proposalReachedDeadline(uint256 _proposalID) public view returns (bool) {
@@ -129,8 +121,7 @@ contract TrevDAO {
     * Voting functions:
   **/
 
-  function voteAssignedToProposal(address voter, uint256 proposalID, bool support) internal {
-    voterAlreadyVoted[voter][proposalID] = true; //cannot vote again
+  function voteAssignedToProposal(uint256 proposalID, bool support) internal {
 
     if (support) {
       uint256 totalVotesForProposal = votesForProposal[proposalID];
@@ -139,7 +130,7 @@ contract TrevDAO {
     else {
       uint256 totalVotesAgainstProposal = votesAgainstProposal[proposalID];
       votesAgainstProposal[proposalID] = totalVotesAgainstProposal + 1;
-    }
+    }       
   }
 
   function castVote(uint256 _proposalID, bool _support) external returns (bool) {
@@ -147,12 +138,11 @@ contract TrevDAO {
     IERC20 token = IERC20(trevTokenAddress);
     require(ITrevToken(trevTokenAddress).getBlackListStatus(_sender) == false, "User is blacklisted from TTK");
     require(proposalReachedDeadline(_proposalID) == false, "Proposal voting period has expired");
-    require(voterAlreadyVoted[_sender][_proposalID] == false, "User has already voted on this proposal");
     require(token.balanceOf(_sender) > 0, "Only TrevToken holders can participate");
 
     token.approve(_sender, valueOfEachVote);
     token.transferFrom(_sender, address(this), valueOfEachVote);
-    voteAssignedToProposal(_sender, _proposalID, _support);
+    voteAssignedToProposal(_proposalID, _support);
     emit VoteSubmitted(_sender, _proposalID, _support);
 
     return true;
@@ -189,7 +179,7 @@ contract TrevDAO {
 
     uint256 votesFor = votesForProposal[_proposalID];
     uint256 votesAgainst = votesAgainstProposal[_proposalID];
-    uint256 totalNumOfVotes = votesFor + votesAgainst;
+    uint256 totalNumOfVotes = votesFor + votesAgainst; 
 
     if (totalNumOfVotes >= quorum) {
         if (votesFor <= votesAgainst) {
@@ -206,7 +196,7 @@ contract TrevDAO {
          emit ProposalDefeated(_proposalID, ProposalState.Defeated, "Proposal did not meet quorum.");
     }
   }
-
+    
   /**
     * Role assigning functions:
     * the governor of this DAO protocal can assign the executor role via setExecutor() and transfer
@@ -216,7 +206,7 @@ contract TrevDAO {
   function setValueOfVoteOnTokenContract() external onlyGovernor returns(bool) {
     ITrevToken(trevTokenAddress).setValueOfVote(valueOfEachVote);
     return true;
-  }
+  } 
 
   function assignNewGovernor (address _governor) external onlyGovernor {
     governor = _governor;
@@ -231,5 +221,5 @@ contract TrevDAO {
   function changeQuorum (uint256 _quorum) external onlyGovernor {
     quorum = _quorum;
     emit QuorumChanged(_quorum);
-  }
+  }  
 }
