@@ -1,4 +1,4 @@
-import StringBytes32Helper from "../scripts/StringBytes32Helper";
+const StringBytes32Helper = require( "../scripts/StringBytes32Helper.js");
 const TrevToken = artifacts.require("TrevToken");
 const TrevDAO = artifacts.require("TrevDAO");
 
@@ -20,9 +20,9 @@ contract("TrevDAO", (accounts) => {
   });
 
 
-  it ("making a proposal", async () => {
+  it ("dao address assigned in token contract", async () => {
     daoAddress = daoInstance.address;  
-    
-    //still in progress
+    const daoAddedToERC20 = await tokenInstance.addDAOAddress(daoAddress);
+    assert.equal(daoAddedToERC20.logs[0].args._daoAddress, daoAddress, "address is in Trev Token");
   });
 });
