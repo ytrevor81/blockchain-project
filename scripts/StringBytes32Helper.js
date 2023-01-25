@@ -8,9 +8,9 @@ class StringBytes32Helper {
     {
         let bytes32Version = web3.utils.toHex(str);
     
-        if (_checkIfHexIsShorterThan66Chars(bytes32Version))
+        if (this._checkIfHexIsShorterThan66Chars(bytes32Version))
         {
-            bytes32Version = _padHex(bytes32Version);
+            bytes32Version = this._padHex(bytes32Version);
         }
     
         return bytes32Version;
