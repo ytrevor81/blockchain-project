@@ -72,7 +72,7 @@ contract TrevToken is ERC20, Ownable, ITrevToken {
 
 //eventually add multisig 
 
-  function initializeDAOContactOnTokenContract(address _daoAddress, uint256 _valueOfDAOVote) external override {
+  function initializeDAOContractOnTokenContract(address _daoAddress, uint256 _valueOfDAOVote) external override {
     require(valueOfEachDAOVote == 0, "Only can be called once");
     require(daoAddress == address(0), "Only can be called once");
 

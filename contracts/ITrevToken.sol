@@ -7,5 +7,5 @@ interface ITrevToken  {
 
   function mint(uint256 _amount) external;
 
-  function initializeDAOContactOnTokenContract(address _address, uint256 _amount) external;
+  function initializeDAOContractOnTokenContract(address _address, uint256 _amount) external;
 }

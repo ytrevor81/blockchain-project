@@ -49,7 +49,7 @@ contract TrevDAO {
     {
       uint8 decimals = abi.decode(returnData, (uint8));
       valueOfEachVote = 1 * 10 ** uint256(decimals);
-      ITrevToken(trevTokenAddress).initializeDAOContactOnTokenContract(address(this), valueOfEachVote);
+      ITrevToken(trevTokenAddress).initializeDAOContractOnTokenContract(address(this), valueOfEachVote);
     }    
   }
 

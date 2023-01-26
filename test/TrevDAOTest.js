@@ -9,7 +9,6 @@ contract("TrevDAO", (accounts) => {
   let tokenAddress;
   const mainAccount = accounts[0];
   const stringBytes32Helper = new StringBytes32Helper();
-  const amountOfTrevTokenVote = 1;
 
   const proposalTest = "Hello World!!!";
   let proposalID;
@@ -22,15 +21,12 @@ contract("TrevDAO", (accounts) => {
 
     const tokenAddressInDAO = await daoInstance.trevTokenAddress();
     assert.equal(tokenAddressInDAO, tokenAddress, "dao contract ready")
+
+    daoAddress = daoInstance.address;
+    const daoAddressInTokenContract = await tokenInstance.viewDAOAddress();
+    assert.equal(daoAddressInTokenContract, daoAddress, "dao address assigned in token contract");
   });
-
-
-  it ("dao address assigned in token contract", async () => {
-    daoAddress = daoInstance.address;  
-    const daoAddedToERC20 = await tokenInstance.addDAOAddress(daoAddress);
-    assert.equal(daoAddedToERC20.logs[0].args._daoAddress, daoAddress, "address is in Trev Token");
-  });
-
+  
   it ("dao proposal submitted", async () => {
     bytes32ProposalDescription = stringBytes32Helper.stringToBytes32(proposalTest);
     const submittedProposalResult = await daoInstance.submitProposal(bytes32ProposalDescription);
