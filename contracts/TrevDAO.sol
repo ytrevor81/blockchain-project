@@ -10,7 +10,7 @@ contract TrevDAO {
   address public governor;
   uint256 public votingPeriod;
 
-  uint256 private immutable valueOfEachVote;
+  uint256 private valueOfEachVote;
   uint256 private proposalIDCounter;
   uint256 private quorum;
 
@@ -41,7 +41,16 @@ contract TrevDAO {
     proposalIDCounter = 0;
     quorum = 2;
     votingPeriod = 10 minutes;
-    valueOfEachVote = 1 * 10 ** 18; //1 token is 1 vote
+
+    bytes memory decimalsFunctionCall = abi.encodeWithSignature("decimals()");
+    (bool success, bytes memory returnData) = trevTokenAddress.call(decimalsFunctionCall);
+
+    if (success) 
+    {
+      uint8 decimals = abi.decode(returnData, (uint8));
+      valueOfEachVote = 1 * 10 ** uint256(decimals);
+      ITrevToken(trevTokenAddress).initializeDAOContactOnTokenContract(address(this), valueOfEachVote);
+    }    
   }
 
   event ProposalSubmitted (
@@ -85,6 +94,12 @@ contract TrevDAO {
   /**
     * Viewing states of the TrevDAO Protocal
   **/
+
+  //Returns values of each vote
+  function valueOfEachProposalVote() external view returns (uint256)
+  {
+    return valueOfEachVote;
+  }
 
   //Returns the name of the DAO protocal
   function name() external pure returns (string memory) {
@@ -140,7 +155,7 @@ contract TrevDAO {
     require(proposalReachedDeadline(_proposalID) == false, "Proposal voting period has expired");
     require(token.balanceOf(_sender) > 0, "Only TrevToken holders can participate");
 
-    token.approve(_sender, valueOfEachVote);
+    //token.approve(_sender, valueOfEachVote);
     token.transferFrom(_sender, address(this), valueOfEachVote);
     voteAssignedToProposal(_proposalID, _support);
     emit VoteSubmitted(_sender, _proposalID, _support);
@@ -173,28 +188,38 @@ contract TrevDAO {
     return true;
   }
 
-  function checkProposalForDecision(uint256 _proposalID) external onlyGovernor {
-    require (stateOfProposal[_proposalID] == ProposalState.Active, "Proposal is not active.");
-    require (proposalReachedDeadline(_proposalID) == true, "Proposal is still pending."); //time lock
+  function checkProposalForDecision(uint256 _proposalID) external returns (bool proposalDecisionMade) {
+    require(stateOfProposal[_proposalID] == ProposalState.Active, "Proposal is not active.");
+
+    if (proposalReachedDeadline(_proposalID) == false) //still in voting period
+    {
+        return false;
+    }
 
     uint256 votesFor = votesForProposal[_proposalID];
     uint256 votesAgainst = votesAgainstProposal[_proposalID];
     uint256 totalNumOfVotes = votesFor + votesAgainst; 
 
-    if (totalNumOfVotes >= quorum) {
-        if (votesFor <= votesAgainst) {
+    if (totalNumOfVotes >= quorum) 
+    {
+        if (votesFor <= votesAgainst) 
+        {
           stateOfProposal[_proposalID] = ProposalState.Defeated;
           emit ProposalDefeated(_proposalID, ProposalState.Defeated, "More votes against than for proposal.");
         }
-        else if (votesFor > votesAgainst) {
+        else if (votesFor > votesAgainst) 
+        {
           stateOfProposal[_proposalID] = ProposalState.Suceeded;
           emit ProposalSucceeded(_proposalID, ProposalState.Suceeded);
         }
     }
-    else {
+    else 
+    {
         stateOfProposal[_proposalID] = ProposalState.Defeated;
-         emit ProposalDefeated(_proposalID, ProposalState.Defeated, "Proposal did not meet quorum.");
+        emit ProposalDefeated(_proposalID, ProposalState.Defeated, "Proposal did not meet quorum.");
     }
+
+    return true;
   }
     
   /**
@@ -202,11 +227,6 @@ contract TrevDAO {
     * the governor of this DAO protocal can assign the executor role via setExecutor() and transfer
     * the governor role to another address via assignNewGoverner().
   **/
-
-  function setValueOfVoteOnTokenContract() external onlyGovernor returns(bool) {
-    ITrevToken(trevTokenAddress).setValueOfVote(valueOfEachVote);
-    return true;
-  } 
 
   function assignNewGovernor (address _governor) external onlyGovernor {
     governor = _governor;

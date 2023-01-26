@@ -5,7 +5,7 @@ interface ITrevToken  {
 
   function getBlackListStatus(address _user) external view returns(bool);
 
-  function mint(uint256 amount) external;
+  function mint(uint256 _amount) external;
 
-  function setValueOfVote(uint256) external returns(bool);
+  function initializeDAOContactOnTokenContract(address _address, uint256 _amount) external;
 }
