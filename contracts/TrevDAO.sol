@@ -63,7 +63,7 @@ contract TrevDAO {
   event ProposalDefeated (
     uint256 proposalID,
     ProposalState state,
-    string explanation
+    bool metQuorum
     );
 
   event ProposalSucceeded (
@@ -155,7 +155,6 @@ contract TrevDAO {
     require(proposalReachedDeadline(_proposalID) == false, "Proposal voting period has expired");
     require(token.balanceOf(_sender) > 0, "Only TrevToken holders can participate");
 
-    //token.approve(_sender, valueOfEachVote);
     token.transferFrom(_sender, address(this), valueOfEachVote);
     voteAssignedToProposal(_proposalID, _support);
     emit VoteSubmitted(_sender, _proposalID, _support);
@@ -205,7 +204,7 @@ contract TrevDAO {
         if (votesFor <= votesAgainst) 
         {
           stateOfProposal[_proposalID] = ProposalState.Defeated;
-          emit ProposalDefeated(_proposalID, ProposalState.Defeated, "More votes against than for proposal.");
+          emit ProposalDefeated(_proposalID, ProposalState.Defeated, true);
         }
         else if (votesFor > votesAgainst) 
         {
@@ -216,7 +215,7 @@ contract TrevDAO {
     else 
     {
         stateOfProposal[_proposalID] = ProposalState.Defeated;
-        emit ProposalDefeated(_proposalID, ProposalState.Defeated, "Proposal did not meet quorum.");
+        emit ProposalDefeated(_proposalID, ProposalState.Defeated, false);
     }
 
     return true;

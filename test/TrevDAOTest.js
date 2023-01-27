@@ -14,6 +14,11 @@ contract("TrevDAO", (accounts) => {
   let proposalID;
   let bytes32ProposalDescription;
 
+  const proposalActiveEnum = 0;
+  const proposalDefeatedEnum = 1;
+  const proposalSucceededEnum = 2;
+
+
   it ("deployed", async () => {
     tokenInstance = await TrevToken.deployed();
     tokenAddress = tokenInstance.address;
@@ -45,5 +50,23 @@ contract("TrevDAO", (accounts) => {
     assert.equal(proposalInfo.description, bytes32ProposalDescription, "Bytes32 description is correct");
     assert.equal(proposalInfo.proposer, mainAccount, "Proposer is correct address");
     assert.equal(stringBytes32Helper.bytes32ToString(proposalInfo.description), translatedContractDescription, "String description is correct");
+  });
+
+  it ("vote cast", async () => {
+    const approveTokenTransferForVote = await tokenInstance.approveForDAOVote();
+    const approvalEvent = approveTokenTransferForVote.logs[0].args;
+    assert.equal(approvalEvent.owner, mainAccount, "transfer to dao approved");
+    assert.equal(approvalEvent.spender, daoAddress, "transfer to dao approved");
+
+    let votesForProposal = await daoInstance.votesForProposal(proposalID);
+    assert.notEqual(votesForProposal, 1, "votes should be 0");
+
+    const castVoteForProposal = await daoInstance.castVote(proposalID, true);
+    const castVoteEvent = castVoteForProposal.logs[0].args;
+    assert.equal(castVoteEvent.proposalID, 0, "correct proposal ID");
+    assert.equal(castVoteEvent.support, true, "recorded votes for proposal");
+
+    votesForProposal = await daoInstance.votesForProposal(proposalID);
+    assert.equal(votesForProposal, 1, "vote confirmed for proposal");
   });
 });
